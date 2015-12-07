@@ -1,0 +1,23 @@
+{
+  "name": "neighborhood-map",
+  "version": "0.0.0",
+  "authors": [
+    "jrarama <joshuararama@gmail.com>"
+  ],
+  "description": "A project that displays different locations of places I have been to",
+  "keywords": [
+    "map"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "knockout": "~3.4.0"
+  }
+}
