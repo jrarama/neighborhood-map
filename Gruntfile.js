@@ -20,7 +20,8 @@
                         window: false,
                         require: false,
                         console: false,
-                        module: false
+                        module: false,
+                        google: false
                     }
                 }
             },
