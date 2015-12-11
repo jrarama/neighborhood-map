@@ -8,9 +8,32 @@
     <title>Neighborhood Map</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <div id="map">
-    </div>
+<body class="pushmenu-push">
+    <nav class="pushmenu pushmenu-left">
+        <h3 class="header">Menu</h3>
+        <a href="#">Home</a>
+        <a href="#">Nav2</a>
+        <a href="#">Nav3</a>
+        <a href="#">Nav4</a>
+        <a href="#">Nav5</a>
+        <a href="#">Nav6</a>
+        <a href="#">Nav7</a>
+    </nav>
+
+    <div class="container full-height">
+        <div class="main full-height">
+            <section class="buttonset">
+                <div id="navlist" class="sr-only">Menu</div>
+            </section>
+
+            <section id="map-section" class="full">
+                <h1 class="sr-only">Neighborhood Map</h1>
+                <div id="map"></div>
+            </section><!-- End Content -->
+        </div><!-- End Main -->
+    </div><!-- End Container -->
+
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="js/app.js"></script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?callback=MyApp.init">

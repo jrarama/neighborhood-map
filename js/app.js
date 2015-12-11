@@ -75,4 +75,15 @@
             mapView.init();
         }
     };
+
+    $(function() {
+        var $menuLeft = $('.pushmenu-left');
+        var $navList = $('#navlist');
+
+        $navList.click(function() {
+            $(this).toggleClass('active');
+            $('.pushmenu-push').toggleClass('pushmenu-push-toright');
+            $menuLeft.toggleClass('pushmenu-open');
+        });
+    });
 })();

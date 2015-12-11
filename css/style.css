@@ -3,8 +3,128 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
+    background: gray;
+}
+
+/** Screen Readers Only */
+.sr-only {
+    text-indent: -99999em;
+}
+
+.full-height {
+    position: relative;
+    height: 100%;
+}
+
+.full {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+/**
+ * Navigation Bar styles based on http://jsfiddle.net/kangrian/WCauA/
+ */
+.pushmenu {
+    background: #3c3933;
+    font-family: Arial, Helvetics, sans-serif;
+    width: 240px;
+    height: 100%;
+    top: 0;
+    z-index: 1000;
+    position:fixed;
+}
+
+.pushmenu .header {
+    color: #cbbfad;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 15px 20px;
+    margin: 0;
+    background: #282522;
+    height: 16px;
+}
+
+.pushmenu a {
+    display: block;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    border-top: 1px solid #56544e;
+    border-bottom: 1px solid #312e2a;
+    padding: 14px;
+}
+
+.pushmenu a:hover {
+    background:#00A287;
+}
+
+.pushmenu a:active {
+    background: #454f5c;
+    color: #fff;
+}
+
+.pushmenu-left {
+    left: -240px;
+
+}
+
+.pushmenu-left.pushmenu-open {
+    left: 0;
+}
+
+.pushmenu-push {
+    overflow-x: hidden;
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.pushmenu-push-toright {
+    left: 240px;
+    right: 0;
+}
+
+.pushmenu, .pushmenu-push {
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+
+#navlist {
+    background: url(../img/icon_nav.png) no-repeat left top;
+    cursor: pointer;
+    height: 27px;
+    width: 33px;
+}
+
+#navlist.active {
+    background-position: -33px top;
+}
+
+.buttonset {
+    background: #00A287;
+    height: 48px;
+    padding: 10px 20px 20px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+/* Map Styles */
+#map-section {
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 10px 20px;
+    top: 48px;
 }
 
 #map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
 }
