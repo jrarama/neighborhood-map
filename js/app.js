@@ -59,8 +59,22 @@
 
     var mapView = {
         init: function() {
+            this.initSidebar();
             this.renderMap();
             this.renderMarkers();
+            ko.applyBindings(new LocationsViewModel());
+        },
+        initSidebar: function() {
+            var self = this;
+            var $menuLeft = $('.pushmenu-left');
+            var $toggleBtn = $('#toggle-btn');
+            $toggleBtn.click(function() {
+                $(this).toggleClass('active');
+                $('.pushmenu-push').toggleClass('pushmenu-open');
+            }).one('click', function() {
+                // Resize once when sidebar is hidden since map area will be wider
+                self.resizeMap(100);
+            });
         },
         renderMap: function() {
             var map = document.getElementById('map');
@@ -78,6 +92,11 @@
             setTimeout(function() {
                 marker.setAnimation(null);
             }, 2100);
+        },
+        resizeMap: function(interval) {
+            setTimeout(function() {
+                google.maps.event.trigger(controller.getMap(), 'resize');
+            }, interval || 0);
         }
     };
 
@@ -116,18 +135,7 @@
     window.MyApp = {
         init: function() {
             mapView.init();
-            ko.applyBindings(new LocationsViewModel());
         }
     };
 
-    $(function() {
-        var $menuLeft = $('.pushmenu-left');
-        var $navList = $('#navlist');
-
-        $navList.click(function() {
-            $(this).toggleClass('active');
-            $('.pushmenu-push').toggleClass('pushmenu-push-toright');
-            $menuLeft.toggleClass('pushmenu-open');
-        });
-    });
 })(jQuery, ko);

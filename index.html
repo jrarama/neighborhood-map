@@ -8,7 +8,7 @@
     <title>Neighborhood Map</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="pushmenu-push">
+<body class="pushmenu-push pushmenu-open">
     <nav id="sidebar" class="pushmenu pushmenu-left">
         <div class="header">
             <input type="text" id="search" data-bind="value: location, valueUpdate: 'keyup'"
@@ -21,12 +21,12 @@
 
     <div class="container full-height">
         <div class="main full-height">
-            <section class="buttonset">
-                <div id="navlist" class="sr-only">Menu</div>
+            <section class="main-header">
+                <span id="toggle-btn" class="sr-only active">Menu</span>
+                <h1 class="page-title">Neighborhood Map</h1>
             </section>
 
             <section id="map-section" class="full">
-                <h1 class="sr-only">Neighborhood Map</h1>
                 <div id="map"></div>
             </section><!-- End Content -->
         </div><!-- End Main -->
