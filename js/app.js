@@ -1,4 +1,4 @@
-(function() {
+(function($, ko) {
     var model = {
         locations: [
             {
@@ -18,7 +18,7 @@
                 lat: 16.590225,
                 lng: 120.2994233
             }, {
-                name: 'Ayala Triangle Walkways, Makati, Philippines',
+                name: 'Ayala Triangle, Makati, Philippines',
                 lat : 14.5568405,
                 lng : 121.0238122
             }
@@ -45,10 +45,14 @@
         },
         addMarker: function(loc) {
             var latlng = new google.maps.LatLng(loc.lat, loc.lng);
-            model.markers[loc.name] = new google.maps.Marker({
+            loc.marker = model.markers[loc.name] = new google.maps.Marker({
                 position: latlng,
                 title: loc.name,
                 map: model.map
+            });
+
+            loc.marker.addListener('click', function() {
+                mapView.markerBounce(loc.marker);
             });
         }
     };
@@ -67,12 +71,52 @@
             locations.forEach(function(loc) {
                 controller.addMarker(loc);
             });
+        },
+        markerBounce: function(marker) {
+            marker.setAnimation(null);
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(function() {
+                marker.setAnimation(null);
+            }, 2100);
         }
+    };
+
+    var LocationsViewModel = function() {
+        var self = this;
+        this.location = ko.observable("");
+        this.locations = ko.observableArray();
+
+        controller.getLocations().forEach(function(loc) {
+            self.locations.push({
+                name: ko.observable(loc.name),
+                isVisible: ko.observable(true),
+                marker: loc.marker
+            });
+        });
+
+        this.updateLocations = function(val) {
+            self.locations().forEach(function(loc) {
+                // Match only when a word in the location starts with value
+                var match = loc.name().match(new RegExp('\\b' + val + '\\S*', 'i')) || [];
+                var visible = match.length > 0;
+                loc.isVisible(visible);
+                loc.marker.setVisible(visible);
+            });
+        };
+
+        this.location.subscribe(function(val) {
+            self.updateLocations(val);
+        });
+
+        this.onClick = function(loc) {
+            mapView.markerBounce(loc.marker);
+        };
     };
 
     window.MyApp = {
         init: function() {
             mapView.init();
+            ko.applyBindings(new LocationsViewModel());
         }
     };
 
@@ -86,4 +130,4 @@
             $menuLeft.toggleClass('pushmenu-open');
         });
     });
-})();
+})(jQuery, ko);

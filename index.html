@@ -9,15 +9,14 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="pushmenu-push">
-    <nav class="pushmenu pushmenu-left">
-        <h3 class="header">Menu</h3>
-        <a href="#">Home</a>
-        <a href="#">Nav2</a>
-        <a href="#">Nav3</a>
-        <a href="#">Nav4</a>
-        <a href="#">Nav5</a>
-        <a href="#">Nav6</a>
-        <a href="#">Nav7</a>
+    <nav id="sidebar" class="pushmenu pushmenu-left">
+        <div class="header">
+            <input type="text" id="search" data-bind="value: location, valueUpdate: 'keyup'"
+                class="block" placeholder="Search locations.." />
+        </div>
+        <ul id="locations" class="list-items" data-bind="foreach: locations">
+            <li data-bind="text: name, click: $parent.onClick, visible: isVisible"></li>
+        </ul>
     </nav>
 
     <div class="container full-height">
@@ -34,6 +33,7 @@
     </div><!-- End Container -->
 
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/knockout/dist/knockout.js"></script>
     <script src="js/app.js"></script>
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?callback=MyApp.init">
