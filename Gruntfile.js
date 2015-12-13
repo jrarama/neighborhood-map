@@ -27,13 +27,24 @@
                     }
                 }
             },
+            uglify: {
+                dist: {
+                    files: {
+                        'js/app.min.js': [
+                            'bower_components/jquery/dist/jquery.min.js',
+                            'bower_components/knockout/dist/knockout.js',
+                            'js/app.js'
+                        ]
+                    }
+                }
+            },
             clean : {
                 dist : ['bower_components/*/*', '!bower_components/*/dist']
             },
             watch: {
                 scripts: {
-                    files: ['./js/*.js'],
-                    tasks: ['jshint'],
+                    files: ['./js/*.js', '!./js/*.min.js'],
+                    tasks: ['jshint', 'uglify'],
                     options: {
                         livereload: true
                     }
@@ -48,6 +59,7 @@
         grunt.initConfig(config);
 
         // Register default tasks
+        grunt.registerTask('build', ['clean', 'uglify']);
         grunt.registerTask('default', ['watch']);
     };
 })();
