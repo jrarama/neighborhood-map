@@ -1,4 +1,16 @@
+/* App.js
+ *
+ * This script contains codes to render the map together with all
+ * the markers. It uses Google Maps Api to generate the map, Knockout JS
+ * to update location list based on search text, JQuery to get JSONP
+ * requests and Wikipedia API to get details about the locations.
+ */
+
 (function($, ko) {
+    /**
+     * The model contains all the data needed for the app.
+     * It contains all the locations and the map object
+     */
     var model = {
         locations: [
             {
@@ -43,26 +55,32 @@
                 wikiQuery: 'Angkor Wat'
             }
         ],
-        map: null,
-        markers: {}
+        map: null
     };
 
+    /**
+     * The controller serves as a bridge that connects the model and the view.
+     */
     var controller = {
+        /** Gets the map from the model */
         getMap: function() {
             return model.map;
         },
-        getMarkers: function() {
-            return model.markers;
-        },
+        /** Gets the locations from the model */
         getLocations: function() {
             return model.locations;
         },
+        /** Create a map object and set the model's map value */
         initMap: function(elem) {
             model.map = new google.maps.Map(elem, {
                 center: {lat: 10, lng: 121},
                 zoom: 5
             });
         },
+        /**
+         * Use wikipedia API to get wiki for a marker and store it in a variable.
+         * All subsequent requests for the markers' wiki will use the stored value.
+         */
         getWiki: function(marker) {
             if (marker.content) {
                 return $.Deferred().resolve(marker.content);
@@ -83,15 +101,19 @@
         }
     };
 
+    /** All codes regarding the view is here */
     var mapView = {
+        /** initialize all view components */
         init: function() {
             this.initSidebar();
             this.renderMap();
             this.renderMarkers();
+
             var viewModel = new LocationsViewModel();
             ko.applyBindings(viewModel);
             viewModel.updateLocations('');
         },
+        /** initialize the sidebar which list all locations */
         initSidebar: function() {
             var self = this;
             var $menuLeft = $('.pushmenu-left');
@@ -101,13 +123,15 @@
                 $('.pushmenu-push').toggleClass('pushmenu-open');
             }).one('click', function() {
                 // Resize once when sidebar is hidden since map area will be wider
-                self.resizeMap(100);
+                self.resizeMap(200);
             });
         },
+        /** renders the map */
         renderMap: function() {
             var map = document.getElementById('map');
             controller.initMap(map);
         },
+        /** renders the markers for each location */
         renderMarkers: function() {
             var self = this;
             var locations = controller.getLocations();
@@ -115,6 +139,7 @@
                 self.addMarker(loc);
             });
         },
+        /** add a marker to a single location */
         addMarker: function(loc) {
             var self = this;
             var latlng = new google.maps.LatLng(loc.lat, loc.lng);
@@ -130,6 +155,7 @@
                 self.showInfoWindow(loc.marker);
             });
         },
+        /** close all markers */
         closeMarkers: function() {
             controller.getLocations().forEach(function(loc) {
                 if (loc.marker && loc.marker.infoWindow) {
@@ -137,8 +163,13 @@
                 }
             });
         },
+        /**
+         * Create an infoWindow if it is not yet created, then call the
+         * callback function.
+         */
         createInfoWindow: function(marker, callback) {
             if (!marker.infoWindow) {
+                // get the wiki for a marker
                 controller.getWiki(marker).done(function(data) {
                     var item = null;
                     if (data && data.query && (item = data.query.search) && item.length > 0) {
@@ -171,12 +202,14 @@
                 }
             }
         },
+        /** Show the info window. If it is not yet existing, it will be created first */
         showInfoWindow: function(marker) {
             this.closeMarkers();
             this.createInfoWindow(marker, function() {
                 marker.infoWindow.open(controller.getMap(), marker);
             });
         },
+        /** Add bouncing animation to the marker */
         markerBounce: function(marker) {
             marker.setAnimation(null);
             marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -184,6 +217,7 @@
                 marker.setAnimation(null);
             }, 2100);
         },
+        /** Trigger a resize event to the map so that it will fully render the new map area */
         resizeMap: function(interval) {
             window.setTimeout(function() {
                 google.maps.event.trigger(controller.getMap(), 'resize');
@@ -191,11 +225,13 @@
         }
     };
 
+    /** The viewModel used by knockout to bind locations model and view */
     var LocationsViewModel = function() {
         var self = this;
         this.location = ko.observable("");
         this.locations = ko.observableArray();
 
+        // loop locations to create observable objects
         controller.getLocations().forEach(function(loc) {
             self.locations.push({
                 name: ko.observable(loc.name),
@@ -204,6 +240,7 @@
             });
         });
 
+        /** Update location list and visible markers based on the search text */
         this.updateLocations = function(val) {
             var bounds = new google.maps.LatLngBounds();
             var count = 0;
@@ -219,22 +256,26 @@
                 }
             });
             var map = controller.getMap();
+            // Make sure that all markers are visible on the map
             map.fitBounds(bounds);
             if (count < 2) {
                 map.setZoom(7);
             }
         };
 
+        // Update locations when the location observable is changed
         this.location.subscribe(function(val) {
             self.updateLocations(val);
         });
 
+        // Animate the marker and show infoWindow when marker or location item is clicked
         this.onClick = function(loc) {
             mapView.markerBounce(loc.marker);
             mapView.showInfoWindow(loc.marker);
         };
     };
 
+    // Expose the MyApp object to the outside world.
     window.MyApp = {
         init: function() {
             mapView.init();

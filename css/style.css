@@ -1,3 +1,10 @@
+/**
+ * Style.css
+ *
+ * This file contains all the styles for the page
+ */
+
+/* Paddings and margins will not contribute to the width and height of all elements */
 *, *:before, *:after {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -37,27 +44,15 @@ body {
     color: #eee;
 }
 
-input,
-button {
+input {
     border-radius: 4px;
     border: 1px solid #ccc;
     height: 31px;
     padding: 3px 6px;
 }
 
-button {
-    cursor: pointer;
-}
-
 .block {
     width: 100%;
-}
-
-.btn-right {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 34px;
 }
 
 /**
