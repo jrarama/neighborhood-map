@@ -1,7 +1,7 @@
 {
   "name": "neighborhood-map",
   "version": "0.0.0",
-  "description": "A project that displays different locations of places I have been to",
+  "description": "A project that displays in a map beautiful places in my neighborhood.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

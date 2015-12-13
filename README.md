@@ -1,3 +1,3 @@
 ## Neighborhood Map
 
-A project that displays different locations of places I have been to.
+A project that displays in a map beautiful places in my neighborhood.

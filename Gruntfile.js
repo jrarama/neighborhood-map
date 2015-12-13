@@ -21,7 +21,9 @@
                         require: false,
                         console: false,
                         module: false,
-                        google: false
+                        google: false,
+                        jQuery: false,
+                        ko: false
                     }
                 }
             },

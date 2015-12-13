@@ -4,23 +4,43 @@
             {
                 name: 'Burnham Park Baguio, Philippines',
                 lat : 16.4095362,
-                lng : 120.5948181
+                lng : 120.5948181,
+                wikiQuery: 'Burnham Park Philippines'
             }, {
-                name: 'Merlion Park, Singapore',
-                lat : 1.2866432,
-                lng : 103.8543444
+                name: 'Makati, Philippines',
+                lat: 14.5545196,
+                lng: 120.9980553,
+                wikiQuery: 'Makati'
             }, {
-                name: 'Batam City, Indonesia',
-                lat : 1.0456264,
-                lng : 104.0304535
+                name: 'Boracay, Philippines',
+                lat: 11.969281,
+                lng: 121.8922095,
+                wikiQuery: 'Boracay'
             }, {
-                name: 'La Union, Philippines',
-                lat: 16.590225,
-                lng: 120.2994233
+                name: 'Puerto Princesa, Philippines',
+                lat: 10.1925648,
+                lng: 118.8915586,
+                wikiQuery: 'Puerto Princesa Subterranean River National Park'
             }, {
-                name: 'Ayala Triangle, Makati, Philippines',
-                lat : 14.5568405,
-                lng : 121.0238122
+                name: 'Marina Bay Sands, Singapore',
+                lat : 1.2838839,
+                lng : 103.8567958,
+                wikiQuery: 'Marina Bay Sands'
+            }, {
+                name: 'Mactan, Cebu, Philippines',
+                lat : 10.2880615,
+                lng : 123.9139672,
+                wikiQuery: 'Mactan'
+            }, {
+                name: 'Petronas Twin Towers, Malaysia',
+                lat: 3.1579054,
+                lng: 101.7094059,
+                wikiQuery: 'Petronas Towers'
+            }, {
+                name: 'Angkor Wat, Cambodia',
+                lat: 13.4124693,
+                lng: 103.864797,
+                wikiQuery: 'Angkor Wat'
             }
         ],
         map: null,
@@ -43,16 +63,22 @@
                 zoom: 5
             });
         },
-        addMarker: function(loc) {
-            var latlng = new google.maps.LatLng(loc.lat, loc.lng);
-            loc.marker = model.markers[loc.name] = new google.maps.Marker({
-                position: latlng,
-                title: loc.name,
-                map: model.map
-            });
+        getWiki: function(marker) {
+            if (marker.content) {
+                return $.Deferred().resolve(marker.content);
+            }
 
-            loc.marker.addListener('click', function() {
-                mapView.markerBounce(loc.marker);
+            return $.ajax({
+                url: 'https://en.wikipedia.org/w/api.php',
+                type: 'GET',
+                dataType: 'jsonp',
+                data: {
+                    action : 'query',
+                    list : 'search',
+                    srwhat : 'text',
+                    format : 'json',
+                    srsearch: marker.wikiQuery
+                }
             });
         }
     };
@@ -62,7 +88,9 @@
             this.initSidebar();
             this.renderMap();
             this.renderMarkers();
-            ko.applyBindings(new LocationsViewModel());
+            var viewModel = new LocationsViewModel();
+            ko.applyBindings(viewModel);
+            viewModel.updateLocations('');
         },
         initSidebar: function() {
             var self = this;
@@ -81,20 +109,83 @@
             controller.initMap(map);
         },
         renderMarkers: function() {
+            var self = this;
             var locations = controller.getLocations();
             locations.forEach(function(loc) {
-                controller.addMarker(loc);
+                self.addMarker(loc);
+            });
+        },
+        addMarker: function(loc) {
+            var self = this;
+            var latlng = new google.maps.LatLng(loc.lat, loc.lng);
+            loc.marker = new google.maps.Marker({
+                position: latlng,
+                title: loc.name,
+                map: model.map,
+                wikiQuery: loc.wikiQuery
+            });
+
+            loc.marker.addListener('click', function() {
+                mapView.markerBounce(loc.marker);
+                self.showInfoWindow(loc.marker);
+            });
+        },
+        closeMarkers: function() {
+            controller.getLocations().forEach(function(loc) {
+                if (loc.marker && loc.marker.infoWindow) {
+                    loc.marker.infoWindow.close();
+                }
+            });
+        },
+        createInfoWindow: function(marker, callback) {
+            if (!marker.infoWindow) {
+                controller.getWiki(marker).done(function(data) {
+                    var item = null;
+                    if (data && data.query && (item = data.query.search) && item.length > 0) {
+                        item = item[0];
+                        var url = 'https://en.wikipedia.org/wiki/' + item.title;
+                        marker.content = [
+                            '<div class="infowindow">',
+                            '<h3><a href="@url" alt="@title" target="_blank">@title</a></h3>',
+                            '<div class="content">',
+                                item.snippet,
+                                ' ... <a href="@url" alt="@title" target="_blank">read more</a>',
+                            '</div>',
+                            '</div>'
+                        ].join('').replace(/@url/g, url).replace(/@title/g, item.title);
+                    } else {
+                        marker.content = '<div class="infowindow"><h3>' + marker.title + '</h3></div>';
+                    }
+                    marker.infoWindow = new google.maps.InfoWindow({
+                        content: marker.content,
+                        maxWidth: 400
+                    });
+
+                    if (typeof callback == 'function') {
+                        callback(marker);
+                    }
+                });
+            } else {
+                if (typeof callback == 'function') {
+                    callback(marker);
+                }
+            }
+        },
+        showInfoWindow: function(marker) {
+            this.closeMarkers();
+            this.createInfoWindow(marker, function() {
+                marker.infoWindow.open(controller.getMap(), marker);
             });
         },
         markerBounce: function(marker) {
             marker.setAnimation(null);
             marker.setAnimation(google.maps.Animation.BOUNCE);
-            setTimeout(function() {
+            window.setTimeout(function() {
                 marker.setAnimation(null);
             }, 2100);
         },
         resizeMap: function(interval) {
-            setTimeout(function() {
+            window.setTimeout(function() {
                 google.maps.event.trigger(controller.getMap(), 'resize');
             }, interval || 0);
         }
@@ -114,13 +205,24 @@
         });
 
         this.updateLocations = function(val) {
+            var bounds = new google.maps.LatLngBounds();
+            var count = 0;
             self.locations().forEach(function(loc) {
                 // Match only when a word in the location starts with value
                 var match = loc.name().match(new RegExp('\\b' + val + '\\S*', 'i')) || [];
                 var visible = match.length > 0;
                 loc.isVisible(visible);
                 loc.marker.setVisible(visible);
+                if (visible) {
+                    bounds.extend(loc.marker.getPosition());
+                    ++count;
+                }
             });
+            var map = controller.getMap();
+            map.fitBounds(bounds);
+            if (count < 2) {
+                map.setZoom(7);
+            }
         };
 
         this.location.subscribe(function(val) {
@@ -129,6 +231,7 @@
 
         this.onClick = function(loc) {
             mapView.markerBounce(loc.marker);
+            mapView.showInfoWindow(loc.marker);
         };
     };
 
