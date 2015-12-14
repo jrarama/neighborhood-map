@@ -7,6 +7,10 @@
  */
 
 (function($, ko) {
+    /** Icon constants */
+    var DEFAULT_ICON = 'img/pin-green.png',
+        SELECTED_ICON = 'img/pin-pink.png';
+
     /**
      * The model contains all the data needed for the app.
      * It contains all the locations and the map object
@@ -55,7 +59,8 @@
                 wikiQuery: 'Angkor Wat'
             }
         ],
-        map: null
+        map: null,
+        viewModel: null
     };
 
     /**
@@ -69,6 +74,14 @@
         /** Gets the locations from the model */
         getLocations: function() {
             return model.locations;
+        },
+        /** Sets the viewModel */
+        setViewModel: function(viewModel) {
+            model.viewModel = viewModel;
+        },
+        /** Gets the viewModel */
+        getViewModel: function() {
+            return model.viewModel;
         },
         /** Create a map object and set the model's map value */
         initMap: function(elem) {
@@ -108,8 +121,12 @@
             this.initSidebar();
             this.renderMap();
             this.renderMarkers();
-
+            this.initViewModel();
+        },
+        /** initialize the viewModel */
+        initViewModel: function() {
             var viewModel = new LocationsViewModel();
+            controller.setViewModel(viewModel);
             ko.applyBindings(viewModel);
             viewModel.updateLocations('');
         },
@@ -146,13 +163,14 @@
             loc.marker = new google.maps.Marker({
                 position: latlng,
                 title: loc.name,
+                icon: DEFAULT_ICON,
                 map: model.map,
                 wikiQuery: loc.wikiQuery
             });
 
             loc.marker.addListener('click', function() {
-                mapView.markerBounce(loc.marker);
-                self.showInfoWindow(loc.marker);
+                var viewModel = controller.getViewModel();
+                viewModel.onClick(this.location);
             });
         },
         /** close all markers */
@@ -233,11 +251,15 @@
 
         // loop locations to create observable objects
         controller.getLocations().forEach(function(loc) {
-            self.locations.push({
+            var item = {
                 name: ko.observable(loc.name),
                 isVisible: ko.observable(true),
-                marker: loc.marker
-            });
+                marker: loc.marker,
+                selected: ko.observable(false)
+            };
+            // Make the observable location accessible from marker object
+            item.marker.location = item;
+            self.locations.push(item);
         });
 
         /** Update location list and visible markers based on the search text */
@@ -268,10 +290,22 @@
             self.updateLocations(val);
         });
 
+        // Set the selected location
+        this.setSelected = function(loc) {
+            self.locations().forEach(function(item) {
+                item.selected(false);
+                item.marker.setIcon(DEFAULT_ICON);
+            });
+
+            loc.selected(true);
+            loc.marker.setIcon(SELECTED_ICON);
+        };
+
         // Animate the marker and show infoWindow when marker or location item is clicked
         this.onClick = function(loc) {
             mapView.markerBounce(loc.marker);
             mapView.showInfoWindow(loc.marker);
+            self.setSelected(loc);
         };
     };
 

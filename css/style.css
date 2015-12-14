@@ -94,11 +94,13 @@ input {
     cursor: pointer;
 }
 
-.list-items li:hover {
+.list-items li:hover,
+.list-items li.active {
     background:#00A287;
 }
 
-.list-items li:active {
+.list-items li:active
+ {
     background: #454f5c;
     color: #fff;
 }
