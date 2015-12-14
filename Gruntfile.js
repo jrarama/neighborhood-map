@@ -9,6 +9,18 @@
         // Grunt configuration
         var config = {
             pkg: grunt.file.readJSON('package.json'),
+            cssmin: {
+                options: {
+                    shorthandCompacting: false,
+                    roundingPrecision: -1,
+                    keepSpecialComments: 0
+                },
+                pizza: {
+                    files: {
+                      './css/style.min.css': ['./css/style.css']
+                    }
+                },
+            },
             jshint: {
                 all: ['Gruntfile.js', './js/**/*.js', '!./js/**/*.min.js'],
                 options: {
@@ -45,6 +57,13 @@
                 scripts: {
                     files: ['./js/*.js', '!./js/*.min.js'],
                     tasks: ['jshint', 'uglify'],
+                    options: {
+                        livereload: true
+                    }
+                },
+                styles: {
+                    files: ['./css/*.css', '!./css/*.min.css'],
+                    tasks: ['cssmin'],
                     options: {
                         livereload: true
                     }
