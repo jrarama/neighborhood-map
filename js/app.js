@@ -95,7 +95,7 @@
          * All subsequent requests for the markers' wiki will use the stored value.
          */
         getWiki: function(marker) {
-            if (marker.content) {
+            if (marker.content && !marker.fetchError) {
                 return $.Deferred().resolve(marker.content);
             }
 
@@ -186,8 +186,11 @@
          * callback function.
          */
         createInfoWindow: function(marker, callback) {
-            if (!marker.infoWindow) {
+            if (!marker.infoWindow || marker.fetchError) {
                 // get the wiki for a marker
+                marker.infoWindow = new google.maps.InfoWindow({
+                    maxWidth: 400
+                });
                 controller.getWiki(marker).done(function(data) {
                     var item = null;
                     if (data && data.query && (item = data.query.search) && item.length > 0) {
@@ -205,11 +208,19 @@
                     } else {
                         marker.content = '<div class="infowindow"><h3>' + marker.title + '</h3></div>';
                     }
-                    marker.infoWindow = new google.maps.InfoWindow({
-                        content: marker.content,
-                        maxWidth: 400
-                    });
-
+                    marker.fetchError = false;
+                }).fail(function() {
+                    marker.content = [
+                        '<div class="infowindow">',
+                        '<h3>Unable to fetch data</h3>',
+                        '<div class="content">',
+                            'An error occured while trying to get the data from the server.',
+                        '</div>',
+                        '</div>'
+                    ].join('');
+                    marker.fetchError = true;
+                }).always(function() {
+                    marker.infoWindow.setContent(marker.content);
                     if (typeof callback == 'function') {
                         callback(marker);
                     }
