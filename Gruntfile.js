@@ -15,7 +15,7 @@
                     roundingPrecision: -1,
                     keepSpecialComments: 0
                 },
-                pizza: {
+                main: {
                     files: {
                       './css/style.min.css': ['./css/style.css']
                     }
@@ -78,7 +78,7 @@
         grunt.initConfig(config);
 
         // Register default tasks
-        grunt.registerTask('build', ['clean', 'uglify']);
+        grunt.registerTask('build', ['clean', 'uglify', 'cssmin']);
         grunt.registerTask('default', ['watch']);
     };
 })();
